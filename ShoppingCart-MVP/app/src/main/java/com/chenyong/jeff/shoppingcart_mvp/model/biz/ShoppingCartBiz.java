@@ -33,14 +33,14 @@ public class ShoppingCartBiz {
             for (int j = 0; j <= i; j++) {
                 int[] img = {R.drawable.goods1, R.drawable.goods2, R.drawable.goods3, R.drawable.goods4, R.drawable.goods5, R.drawable.goods6};
                 products.add(new GoodsInfo(j + "", groups.get(i)
-                        .getName() + "的第" + (j + 1) + "个商品", 12.00 + new Random().nextInt(23), new Random().nextInt(5) + 1, img[i * j],false));
+                        .getName() + "的第" + (j + 1) + "个商品", 12.00 + new Random().nextInt(23), new Random().nextInt(5) + 1, img[i * j], false));
             }
             children.put(groups.get(i).getId(), products);// 将组元素的一个唯一值，这里取Id，作为子元素List的Key
         }
         return groups;
     }
 
-    public Map<String, List<GoodsInfo>> initChildrens() {
+    public Map<String, List<GoodsInfo>> initChildren() {
         groups.clear();
         children.clear();
         for (int i = 0; i < 3; i++) {
@@ -49,13 +49,13 @@ public class ShoppingCartBiz {
             for (int j = 0; j <= i; j++) {
                 int[] img = {R.drawable.goods1, R.drawable.goods2, R.drawable.goods3, R.drawable.goods4, R.drawable.goods5, R.drawable.goods6};
                 products.add(new GoodsInfo(j + "", groups.get(i)
-                        .getName() + "的第" + (j + 1) + "个商品", 12.00 + new Random().nextInt(23), new Random().nextInt(5) + 1, img[i * j],false));
+                        .getName() + "的第" + (j + 1) + "个商品", 12.00 + new Random().nextInt(23), new Random().nextInt(5) + 1, img[i * j], false));
             }
             children.put(groups.get(i).getId(), products);// 将组元素的一个唯一值，这里取Id，作为子元素List的Key
         }
         return children;
     }
-   /* public Map<String, List<GoodsInfo>> initChildrens2() {
+   /* public Map<String, List<GoodsInfo>> initChildren2() {
         children.clear();
         for (int i=0;i<groups.size();i++){
             List<GoodsInfo> products = new ArrayList<GoodsInfo>();

@@ -117,13 +117,13 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <TextView
+                    <Button
                         android:id="@+id/tv_go_to_pay"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:background="@color/orange"
-                        android:clickable="true"
+                        android:clickable="false"
                         android:gravity="center"
                         android:text="结算"
                         android:textColor="#FAFAFA"

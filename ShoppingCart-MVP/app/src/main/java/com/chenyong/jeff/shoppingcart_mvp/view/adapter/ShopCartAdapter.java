@@ -99,6 +99,7 @@ public class ShopCartAdapter extends BaseExpandableListAdapter {
         final StoreInfo group = (StoreInfo) getGroup(groupPosition);
 
         gholder.tv_group_name.setText(group.getName());
+        gholder.cb_check.setChecked(group.isChoosed());
         // 复选框勾选的效果
         gholder.cb_check.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +110,7 @@ public class ShopCartAdapter extends BaseExpandableListAdapter {
                 checkInterface.checkGroup(groupPosition, ((CheckBox) v).isChecked());// 暴露组选接口
             }
         });
-        gholder.cb_check.setChecked(group.isChoosed());
+
         if (group.isEdtor()) {
             gholder.store_edtor.setText("完成");
         } else {

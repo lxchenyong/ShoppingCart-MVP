@@ -9,24 +9,17 @@ public class GoodsInfo {
     protected String name;
     protected boolean isChoosed;
     private String imageUrl;
-//    private String desc;
     private double price;
     private int count;
     private int position;// 绝对位置，只在ListView构造的购物车中，在删除时有效
-//    private String color;
-//    private String size;
     private int goodsImg;
-//    private double discountPrice;
 
 
-    public GoodsInfo(String id, String name, double price, int count, int goodsImg,boolean isChoosed) {
+    public GoodsInfo(String id, String name, double price, int count, int goodsImg, boolean isChoosed) {
         Id = id;
         this.name = name;
-
-        this.imageUrl = imageUrl;
         this.price = price;
         this.count = count;
-        this.position = position;
         this.goodsImg = goodsImg;
         this.isChoosed = isChoosed;
     }

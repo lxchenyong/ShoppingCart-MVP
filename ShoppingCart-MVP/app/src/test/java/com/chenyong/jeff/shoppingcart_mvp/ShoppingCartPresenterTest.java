@@ -58,8 +58,8 @@ public class ShoppingCartPresenterTest {
 
     @Test
     public void testShowTotalPrice() {
-        shoppingCartPresenter.showTotalPrice();
-        shoppingCartPresenter.calculateTotalMoney(groups,children);
+        shoppingCartPresenter.showTotalPrice(groups,children);
+//        shoppingCartPresenter.calculateTotalMoney(groups,children);
 //        verify(iShoppingCartView).showTotalPriceText(shoppingCartPresenter.totalPrice);
         assertTrue(shoppingCartPresenter.totalPrice == 40);
     }
@@ -77,7 +77,7 @@ public class ShoppingCartPresenterTest {
 
     @Test
     public void testCalculateTotalMoney() {
-        shoppingCartPresenter.calculateTotalMoney(groups, children);
-        assertTrue(shoppingCartPresenter.totalPrice == 40);
+//        shoppingCartPresenter.calculateTotalMoney(groups, children);
+//        assertTrue(shoppingCartPresenter.totalPrice == 40);
     }
 }

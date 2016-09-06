@@ -2,10 +2,13 @@ package com.chenyong.jeff.shoppingcart_mvp.view.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.chenyong.jeff.shoppingcart_mvp.R;
@@ -33,7 +36,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     private InterfaceContract.IShoppingCartPresenter presenter;
     private CheckBox allCheckbox;
     private TextView tvTotalPrice;
-    private TextView tvGoToPay;
+    private Button tvGoToPay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         ShoppingCartBiz shoppingCartBiz = new ShoppingCartBiz();
         presenter = new ShoppingCartPresenter(this, shoppingCartBiz);
         groups = presenter.initGroups();
-        children = presenter.initChildrens();
+        children = presenter.initChildren();
         initView();
     }
 
@@ -64,7 +67,10 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         allCheckbox.setOnClickListener(this);
 
         tvTotalPrice = (TextView) findViewById(R.id.tv_total_price);
-        tvGoToPay = (TextView) findViewById(R.id.tv_go_to_pay);
+        tvGoToPay = (Button) findViewById(R.id.tv_go_to_pay);
+        tvGoToPay.setClickable(false);
+//        tvGoToPay.setLinksClickable(false);
+
 //      LinearLayout llCart = (LinearLayout) findViewById(R.id.ll_cart);
 //      LinearLayout cart_empty = (LinearLayout) findViewById(R.id.layout_cart_empty);
 
@@ -72,40 +78,46 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         tvGoToPay.setOnClickListener(this);
     }
 
-    @Override
-    public void doIncrease(int groupPosition, int childPosition, View showCountView, boolean isChecked) {
+    private void changeChilder(int groupPosition, int childPosition, View showCountView, boolean isIncrease) {
         GoodsInfo product = (GoodsInfo) adapter.getChild(groupPosition, childPosition);
         int currentCount = product.getCount();
-        currentCount++;
+        if (isIncrease) {
+            currentCount++;
+        } else {
+            if (currentCount == 1)
+                return;
+            currentCount--;
+        }
         product.setCount(currentCount);
         ((TextView) showCountView).setText(String.valueOf(currentCount));
 //        adapter.notifyDataSetChanged();
-        presenter.showTotalPrice();
+        presenter.changeCount(product.getId(), currentCount);
+        presenter.showTotalPrice(groups, children);
+    }
 
+    @Override
+    public void doIncrease(int groupPosition, int childPosition, View showCountView, boolean isChecked) {
+        changeChilder(groupPosition, childPosition, showCountView, true);
     }
 
     @Override
     public void doDecrease(int groupPosition, int childPosition, View showCountView, boolean isChecked) {
-        GoodsInfo product = (GoodsInfo) adapter.getChild(groupPosition, childPosition);
-        int currentCount = product.getCount();
-        if (currentCount == 1)
-            return;
-        currentCount--;
-        product.setCount(currentCount);
-        ((TextView) showCountView).setText(String.valueOf(currentCount));
-        adapter.notifyDataSetChanged();
-        presenter.showTotalPrice();
+        changeChilder(groupPosition, childPosition, showCountView, false);
     }
 
     @Override
     public void childDelete(int groupPosition, int childPosition) {
-        children.get(groups.get(groupPosition).getId()).remove(childPosition);
+        List<GoodsInfo> goodsInfo = children.get(groups.get(groupPosition).getId());
+        presenter.deleteGoodsInfo(goodsInfo.get(childPosition).getId());
+        goodsInfo.remove(childPosition);
         StoreInfo group = groups.get(groupPosition);
         List<GoodsInfo> childs = children.get(group.getId());
         if (childs.size() == 0) {
+            presenter.deleteStoreInfo(groups.get(groupPosition).getId());
             groups.remove(groupPosition);
+
         }
-        presenter.showTotalPrice();
+        presenter.showTotalPrice(groups, children);
         adapter.notifyDataSetChanged();
     }
 
@@ -117,7 +129,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
             childs.get(i).setChoosed(isChecked);
         }
         showAllCheck(isAllCheck());
-        presenter.showTotalPrice();
+        presenter.showTotalPrice(groups, children);
     }
 
     @Override
@@ -139,7 +151,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
             group.setChoosed(false);// 否则，组元素一律设置为未选中状态
         }
         showAllCheck(isAllCheck());
-        presenter.showTotalPrice();
+        presenter.showTotalPrice(groups, children);
     }
 
     /**
@@ -169,7 +181,20 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     }
 
     @Override
+    public void showProgressBar(boolean isFlag) {
+        if (isFlag) {
+            //此处显示进度条代码
+        } else {
+            //此处关闭进度条代码
+        }
+    }
+
+    @Override
     public void showTotalPriceText(double totalPrice) {
+        if (totalPrice != 0)
+            tvGoToPay.setClickable(false);
+        else
+            tvGoToPay.setClickable(false);
         tvTotalPrice.setText(String.format("￥%.2f", totalPrice));
 //        tvGoToPay.setText(String.format("去支付(%d)",totalCount));
     }
@@ -178,7 +203,18 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     public void forwardToNextView() {
         //TODO 下单之后跳转到下一个页面  及刷新当前页面
         showAllCheck(isAllCheck());
-        presenter.showTotalPrice();
+        presenter.showTotalPrice(groups, children);
+    }
+
+    @Override
+    public void showErrorMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showCreateButton(boolean isChecked) {
+        tvGoToPay.setClickable(isChecked);
+        Log.d("button-2-", "button··" + tvGoToPay.getLinksClickable());
     }
 
     @Override
@@ -193,19 +229,20 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
                         childs.get(j).setChoosed(allCheckbox.isChecked());
                     }
                 }
-                presenter.showTotalPrice();
+                presenter.showTotalPrice(groups, children);
                 adapter.notifyDataSetChanged();
                 break;
             case R.id.tv_go_to_pay:
-                List<GoodsInfo> payGoodsInfos = new ArrayList<>();
-                for (List<GoodsInfo> goodsInfos : children.values()) {
-                    for (int i = 0; i < goodsInfos.size(); i++) {
-                        if (goodsInfos.get(i).isChoosed()) {
-                            payGoodsInfos.add(goodsInfos.get(i));
-                        }
-                    }
-                }
-                presenter.createOrder(payGoodsInfos);
+//                List<GoodsInfo> payGoodsInfos = new ArrayList<>();
+//                for (List<GoodsInfo> goodsInfos : children.values()) {
+//                    for (int i = 0; i < goodsInfos.size(); i++) {
+//                        if (goodsInfos.get(i).isChoosed()) {
+//                            payGoodsInfos.add(goodsInfos.get(i));
+//                        }
+//                    }
+//                }
+//                presenter.shouButton();
+                presenter.createOrder(groups, children);
                 break;
         }
     }
