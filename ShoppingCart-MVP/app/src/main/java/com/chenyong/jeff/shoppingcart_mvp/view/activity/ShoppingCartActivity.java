@@ -36,6 +36,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     private CheckBox allCheckbox;
     private TextView tvTotalPrice;
     private Button tvGoToPay;
+    private  ExpandableListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,24 +44,22 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         setContentView(R.layout.shopping_cart);
         ShoppingCartBiz shoppingCartBiz = new ShoppingCartBiz();
         presenter = new ShoppingCartPresenter(this, shoppingCartBiz);
-
+        initView();
 
     }
 
+
     @Override
     protected void onResume() {
-        groups = presenter.initGroups();
-        children = presenter.initChildren();
-        initView();
         super.onResume();
-
+        presenter.initData();
     }
 
     /**
      * 初始化控件
      */
     private void initView() {
-        ExpandableListView listView = (ExpandableListView) findViewById(R.id.exListView);
+         listView = (ExpandableListView) findViewById(R.id.exListView);
         adapter = new ShopCartAdapter(groups, children, this);
         adapter.setCheckInterface(this);
         adapter.setModifyCountInterface(this);
@@ -115,7 +114,6 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     @Override
     public void childDelete(int groupPosition, int childPosition) {
         presenter.deleteGoodsInfo(groupPosition, childPosition);
-        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -174,6 +172,18 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
             allCheckbox.setChecked(true);
         else
             allCheckbox.setChecked(false);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showData(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods) {
+        groups.clear();
+        children.clear();
+        groups.addAll(stores);
+        children.putAll(goods);
+        for (int i = 0; i < adapter.getGroupCount(); i++) {
+            listView.expandGroup(i);// 关键步骤3,初始化时，将ExpandableListView以展开的方式呈现
+        }
         adapter.notifyDataSetChanged();
     }
 

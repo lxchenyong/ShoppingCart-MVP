@@ -16,6 +16,15 @@ public interface InterfaceContract {
      * 购物车 interface view
      */
     interface IShoppingCartView {
+
+        /**
+         * 显示数据
+         *
+         * @param stores 所有商家
+         * @param goods  所有商品
+         */
+        void showData(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
+
         /**
          * @param isFlag 是否显示进度条
          */
@@ -52,15 +61,11 @@ public interface InterfaceContract {
      * 购物车 interface presenter
      */
     interface IShoppingCartPresenter {
-        /**
-         * @return 初始化所有商家
-         */
-        List<StoreInfo> initGroups();
 
         /**
-         * @return 初始化所有商品
+         * 初始化数据
          */
-        Map<String, List<GoodsInfo>> initChildren();
+        void initData();
 
         /**
          * 显示总金额

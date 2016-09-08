@@ -29,21 +29,24 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     }
 
     /**
-     * @return 返回所有商家
+     *  拿到所有商家
      */
-    @Override
-    public List<StoreInfo> initGroups() {
-        stores = shoppingCartBiz.initGroups();
-        return stores;
+    private void initGroups() {
+        stores.addAll(shoppingCartBiz.initGroups());
     }
 
     /**
-     * @return 返回商家下所有商品
+     * 拿到商家下所有商品
      */
+    private void initChildren() {
+        goods.putAll(shoppingCartBiz.initChildren());
+    }
+
     @Override
-    public Map<String, List<GoodsInfo>> initChildren() {
-        goods = shoppingCartBiz.initChildren();
-        return goods;
+    public void initData() {
+        initGroups();
+        initChildren();
+        iShoppingCartView.showData(stores, goods);
     }
 
     /**
@@ -89,6 +92,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
         }
         calculateTotalMoney(stores, goods);
         iShoppingCartView.showTotalPriceText(totalPrice);
+        iShoppingCartView.showData(stores, goods);
     }
 
     /**
@@ -146,7 +150,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
                 if (product.isChoosed()) {
 //                    totalCount++;
                     totalPrice += product.getPrice() * product.getCount();
-                    int count = (int)totalPrice ;
+                    int count = (int) totalPrice;
                 }
             }
         }
