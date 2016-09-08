@@ -9,7 +9,6 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import com.chenyong.jeff.shoppingcart_mvp.R;
 import com.chenyong.jeff.shoppingcart_mvp.interfacecontract.InterfaceContract;
 import com.chenyong.jeff.shoppingcart_mvp.model.bean.GoodsInfo;
@@ -36,7 +35,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     private CheckBox allCheckbox;
     private TextView tvTotalPrice;
     private Button tvGoToPay;
-    private  ExpandableListView listView;
+    private ExpandableListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +47,6 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -59,7 +57,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
      * 初始化控件
      */
     private void initView() {
-         listView = (ExpandableListView) findViewById(R.id.exListView);
+        listView = (ExpandableListView) findViewById(R.id.exListView);
         adapter = new ShopCartAdapter(groups, children, this);
         adapter.setCheckInterface(this);
         adapter.setModifyCountInterface(this);
@@ -118,56 +116,59 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
     @Override
     public void checkGroup(int groupPosition, boolean isChecked) {
-        StoreInfo group = groups.get(groupPosition);
-        List<GoodsInfo> childs = children.get(group.getId());
-        for (int i = 0; i < childs.size(); i++) {
-            childs.get(i).setChoosed(isChecked);
-        }
-        showAllCheck(isAllCheck());
-        presenter.showTotalPrice(groups, children);
+//        StoreInfo group = groups.get(groupPosition);
+//        List<GoodsInfo> childs = children.get(group.getId());
+//        for (int i = 0; i < childs.size(); i++) {
+//            childs.get(i).setChoosed(isChecked);
+//        }
+//        showAllCheck(isAllCheck());
+//        presenter.showTotalPrice(groups, children);
+        presenter.showChangeGroupCheckedTotalPrice(groupPosition, isChecked);
     }
 
     @Override
     public void checkChild(int groupPosition, int childPosition, boolean isChecked) {
-        boolean allChildSameState = true;// 判断改组下面的所有子元素是否是同一种状态
-        StoreInfo group = groups.get(groupPosition);
-        List<GoodsInfo> childs = children.get(group.getId());
-        for (int i = 0; i < childs.size(); i++) {
-            // 不全选中
-            if (childs.get(i).isChoosed() != isChecked) {
-                allChildSameState = false;
-                break;
-            }
-        }
-        //获取店铺选中商品的总金额
-        if (allChildSameState) {
-            group.setChoosed(isChecked);// 如果所有子元素状态相同，那么对应的组元素被设为这种统一状态
-        } else {
-            group.setChoosed(false);// 否则，组元素一律设置为未选中状态
-        }
-        showAllCheck(isAllCheck());
-        presenter.showTotalPrice(groups, children);
+//        boolean allChildSameState = true;// 判断改组下面的所有子元素是否是同一种状态
+//        StoreInfo group = groups.get(groupPosition);
+//        List<GoodsInfo> childs = children.get(group.getId());
+//        for (int i = 0; i < childs.size(); i++) {
+//            // 不全选中
+//            if (childs.get(i).isChoosed() != isChecked) {
+//                allChildSameState = false;
+//                break;
+//            }
+//        }
+//        //获取店铺选中商品的总金额
+//        if (allChildSameState) {
+//            group.setChoosed(isChecked);// 如果所有子元素状态相同，那么对应的组元素被设为这种统一状态
+//        } else {
+//            group.setChoosed(false);// 否则，组元素一律设置为未选中状态
+//        }
+//        showAllCheck(isAllCheck());
+//        presenter.showTotalPrice(groups, children);
+        presenter.showChangeChilderCheckedTotalPrice(groupPosition, childPosition, isChecked);
     }
 
     /**
      * @return 上家是否全勾选
      */
-    private boolean isAllCheck() {
-        if (groups.size() == 0)
-            return false;
-        for (StoreInfo group : groups) {
-            if (!group.isChoosed())
-                return false;
-        }
-        return true;
-    }
+//    private boolean isAllCheck() {
+//        if (groups.size() == 0)
+//            return false;
+//        for (StoreInfo group : groups) {
+//            if (!group.isChoosed())
+//                return false;
+//        }
+//        return true;
+//    }
 
     /**
      * 全选是否勾选
      *
      * @param isAllCheck 商家是否全勾选
      */
-    private void showAllCheck(boolean isAllCheck) {
+    @Override
+    public void showAllCheck(boolean isAllCheck) {
         if (isAllCheck)
             allCheckbox.setChecked(true);
         else
@@ -207,10 +208,12 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     }
 
     @Override
-    public void forwardToNextView() {
+    public void forwardToNextView(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods) {
         //TODO 下单之后跳转到下一个页面  及刷新当前页面
-        showAllCheck(isAllCheck());
-        presenter.showTotalPrice(groups, children);
+        groups.clear();
+
+//        showAllCheck(isAllCheck());
+//        presenter.showTotalPrice(groups, children);
     }
 
     @Override
@@ -227,16 +230,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.all_chekbox:
-                for (int i = 0; i < groups.size(); i++) {
-                    groups.get(i).setChoosed(allCheckbox.isChecked());
-                    StoreInfo group = groups.get(i);
-                    List<GoodsInfo> childs = children.get(group.getId());
-                    for (int j = 0; j < childs.size(); j++) {
-                        childs.get(j).setChoosed(allCheckbox.isChecked());
-                    }
-                }
-                presenter.showTotalPrice(groups, children);
-                adapter.notifyDataSetChanged();
+                presenter.showAllCheckedTotalPrice(allCheckbox.isChecked());
                 break;
             case R.id.tv_go_to_pay:
 //                List<GoodsInfo> payGoodsInfos = new ArrayList<>();

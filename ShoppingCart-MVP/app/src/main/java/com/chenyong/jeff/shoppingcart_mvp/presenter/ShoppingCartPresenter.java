@@ -29,7 +29,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     }
 
     /**
-     *  拿到所有商家
+     * 拿到所有商家
      */
     private void initGroups() {
         stores.addAll(shoppingCartBiz.initGroups());
@@ -42,6 +42,16 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
         goods.putAll(shoppingCartBiz.initChildren());
     }
 
+    private boolean isAllCheck() {
+        if (stores.size() == 0)
+            return false;
+        for (StoreInfo group : stores) {
+            if (!group.isChoosed())
+                return false;
+        }
+        return true;
+    }
+
     @Override
     public void initData() {
         initGroups();
@@ -52,14 +62,63 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     /**
      * 显示总金额
      */
+//    @Override
+//    public void showTotalPrice(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods) {
+//        calculateTotalMoney(stores, goods);
+//        iShoppingCartView.showTotalPriceText(totalPrice);
+////        if (totalPrice != 0)
+////            iShoppingCartView.showCreateButton(true);
+////        else
+////            iShoppingCartView.showCreateButton(false);
+//    }
     @Override
-    public void showTotalPrice(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods) {
+    public void showChangeGroupCheckedTotalPrice(int groupPosition, boolean isChecked) {
+        StoreInfo group = stores.get(groupPosition);
+        List<GoodsInfo> childs = goods.get(group.getId());
+        for (int i = 0; i < childs.size(); i++) {
+            childs.get(i).setChoosed(isChecked);
+        }
+        iShoppingCartView.showAllCheck(isAllCheck());
         calculateTotalMoney(stores, goods);
         iShoppingCartView.showTotalPriceText(totalPrice);
-//        if (totalPrice != 0)
-//            iShoppingCartView.showCreateButton(true);
-//        else
-//            iShoppingCartView.showCreateButton(false);
+    }
+
+    @Override
+    public void showChangeChilderCheckedTotalPrice(int groupPosition, int childPosition, boolean isChecked) {
+        boolean allChildSameState = true;// 判断改组下面的所有子元素是否是同一种状态
+        StoreInfo group = stores.get(groupPosition);
+        List<GoodsInfo> childs = goods.get(group.getId());
+        for (int i = 0; i < childs.size(); i++) {
+            // 不全选中
+            if (childs.get(i).isChoosed() != isChecked) {
+                allChildSameState = false;
+                break;
+            }
+        }
+        //获取店铺选中商品的总金额
+        if (allChildSameState) {
+            group.setChoosed(isChecked);// 如果所有子元素状态相同，那么对应的组元素被设为这种统一状态
+        } else {
+            group.setChoosed(false);// 否则，组元素一律设置为未选中状态
+        }
+        iShoppingCartView.showAllCheck(isAllCheck());
+        calculateTotalMoney(stores, goods);
+        iShoppingCartView.showTotalPriceText(totalPrice);
+    }
+
+    @Override
+    public void showAllCheckedTotalPrice(boolean isChecked) {
+        for (int i = 0; i < stores.size(); i++) {
+            stores.get(i).setChoosed(isChecked);
+            StoreInfo group = stores.get(i);
+            List<GoodsInfo> childs = goods.get(group.getId());
+            for (int j = 0; j < childs.size(); j++) {
+                childs.get(j).setChoosed(isChecked);
+            }
+        }
+        calculateTotalMoney(stores, goods);
+        iShoppingCartView.showTotalPriceText(totalPrice);
+        iShoppingCartView.showData(stores, goods);
     }
 
     @Override
@@ -106,7 +165,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
         iShoppingCartView.showProgressBar(true);
         //TODO 这里就向服务器发送信息 成功之后从db中删除及跳转到下一个页面
         iShoppingCartView.showProgressBar(false);
-        iShoppingCartView.forwardToNextView();
+        iShoppingCartView.forwardToNextView(stores, goods);
         doBuyDelete(stores, goods);
         //TODO 创建失败
         iShoppingCartView.showProgressBar(false);

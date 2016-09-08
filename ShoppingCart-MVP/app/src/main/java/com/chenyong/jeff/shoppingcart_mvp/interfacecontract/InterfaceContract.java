@@ -25,6 +25,8 @@ public interface InterfaceContract {
          */
         void showData(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
 
+        void showAllCheck(boolean isChecked);
+
         /**
          * @param isFlag 是否显示进度条
          */
@@ -40,7 +42,7 @@ public interface InterfaceContract {
         /**
          * 跳转到下一个页面
          */
-        void forwardToNextView();
+        void forwardToNextView(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
 
         /**
          * 显示错误信息
@@ -68,12 +70,27 @@ public interface InterfaceContract {
         void initData();
 
         /**
-         * 显示总金额
+         * 点击商家显示价格
          *
-         * @param stores 商家
-         * @param goods  商品
+         * @param groupPosition 商家位置
+         * @param isChecked     商家点击
          */
-        void showTotalPrice(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
+        void showChangeGroupCheckedTotalPrice(int groupPosition, boolean isChecked);
+
+        /**
+         * 点击商品后的价格
+         *
+         * @param groupPosition 商家位置
+         * @param childPosition 商品位置
+         * @param isChecked     商品点击
+         */
+        void showChangeChilderCheckedTotalPrice(int groupPosition, int childPosition, boolean isChecked);
+
+        /**
+         * @param isChecked 全选点击操作
+         */
+        void showAllCheckedTotalPrice(boolean isChecked);
+
 
         /**
          * 修改商品数量
