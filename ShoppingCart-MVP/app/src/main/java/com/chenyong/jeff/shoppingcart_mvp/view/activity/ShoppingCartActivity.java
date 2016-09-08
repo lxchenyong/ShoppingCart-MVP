@@ -116,51 +116,15 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
     @Override
     public void checkGroup(int groupPosition, boolean isChecked) {
-//        StoreInfo group = groups.get(groupPosition);
-//        List<GoodsInfo> childs = children.get(group.getId());
-//        for (int i = 0; i < childs.size(); i++) {
-//            childs.get(i).setChoosed(isChecked);
-//        }
-//        showAllCheck(isAllCheck());
-//        presenter.showTotalPrice(groups, children);
         presenter.showChangeGroupCheckedTotalPrice(groupPosition, isChecked);
     }
 
     @Override
     public void checkChild(int groupPosition, int childPosition, boolean isChecked) {
-//        boolean allChildSameState = true;// 判断改组下面的所有子元素是否是同一种状态
-//        StoreInfo group = groups.get(groupPosition);
-//        List<GoodsInfo> childs = children.get(group.getId());
-//        for (int i = 0; i < childs.size(); i++) {
-//            // 不全选中
-//            if (childs.get(i).isChoosed() != isChecked) {
-//                allChildSameState = false;
-//                break;
-//            }
-//        }
-//        //获取店铺选中商品的总金额
-//        if (allChildSameState) {
-//            group.setChoosed(isChecked);// 如果所有子元素状态相同，那么对应的组元素被设为这种统一状态
-//        } else {
-//            group.setChoosed(false);// 否则，组元素一律设置为未选中状态
-//        }
-//        showAllCheck(isAllCheck());
-//        presenter.showTotalPrice(groups, children);
         presenter.showChangeChilderCheckedTotalPrice(groupPosition, childPosition, isChecked);
     }
 
-    /**
-     * @return 上家是否全勾选
-     */
-//    private boolean isAllCheck() {
-//        if (groups.size() == 0)
-//            return false;
-//        for (StoreInfo group : groups) {
-//            if (!group.isChoosed())
-//                return false;
-//        }
-//        return true;
-//    }
+
 
     /**
      * 全选是否勾选
@@ -199,19 +163,17 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
     @Override
     public void showTotalPriceText(double totalPrice) {
-        if (totalPrice != 0)
-            tvGoToPay.setClickable(false);
-        else
-            tvGoToPay.setClickable(false);
+//        if (totalPrice != 0)
+//            tvGoToPay.setClickable(false);
+//        else
+//            tvGoToPay.setClickable(false);
         tvTotalPrice.setText(String.format("￥%.2f", totalPrice));
 //        tvGoToPay.setText(String.format("去支付(%d)",totalCount));
     }
 
     @Override
-    public void forwardToNextView(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods) {
-        //TODO 下单之后跳转到下一个页面  及刷新当前页面
-        groups.clear();
-
+    public void forwardToNextView() {
+        //TODO 下单之后跳转到下一个页面
 //        showAllCheck(isAllCheck());
 //        presenter.showTotalPrice(groups, children);
     }
@@ -233,16 +195,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
                 presenter.showAllCheckedTotalPrice(allCheckbox.isChecked());
                 break;
             case R.id.tv_go_to_pay:
-//                List<GoodsInfo> payGoodsInfos = new ArrayList<>();
-//                for (List<GoodsInfo> goodsInfos : children.values()) {
-//                    for (int i = 0; i < goodsInfos.size(); i++) {
-//                        if (goodsInfos.get(i).isChoosed()) {
-//                            payGoodsInfos.add(goodsInfos.get(i));
-//                        }
-//                    }
-//                }
-//                presenter.shouButton();
-                presenter.createOrder(groups, children);
+                presenter.createOrder();
                 break;
         }
     }

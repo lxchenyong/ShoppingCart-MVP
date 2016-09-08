@@ -42,6 +42,9 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
         goods.putAll(shoppingCartBiz.initChildren());
     }
 
+    /**
+     * @return 是否全选
+     */
     private boolean isAllCheck() {
         if (stores.size() == 0)
             return false;
@@ -59,18 +62,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
         iShoppingCartView.showData(stores, goods);
     }
 
-    /**
-     * 显示总金额
-     */
-//    @Override
-//    public void showTotalPrice(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods) {
-//        calculateTotalMoney(stores, goods);
-//        iShoppingCartView.showTotalPriceText(totalPrice);
-////        if (totalPrice != 0)
-////            iShoppingCartView.showCreateButton(true);
-////        else
-////            iShoppingCartView.showCreateButton(false);
-//    }
+
     @Override
     public void showChangeGroupCheckedTotalPrice(int groupPosition, boolean isChecked) {
         StoreInfo group = stores.get(groupPosition);
@@ -156,17 +148,15 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
 
     /**
      * 创建订单
-     *
-     * @param stores 商家
-     * @param goods  商品
      */
     @Override
-    public void createOrder(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods) {
+    public void createOrder() {
         iShoppingCartView.showProgressBar(true);
         //TODO 这里就向服务器发送信息 成功之后从db中删除及跳转到下一个页面
         iShoppingCartView.showProgressBar(false);
-        iShoppingCartView.forwardToNextView(stores, goods);
-        doBuyDelete(stores, goods);
+        iShoppingCartView.forwardToNextView();
+        doBuyDelete();
+
         //TODO 创建失败
         iShoppingCartView.showProgressBar(false);
         String errorMsg = "创建订单失败";
@@ -176,15 +166,15 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     /**
      * 购买成功之后删除
      */
-    private void doBuyDelete(List<StoreInfo> storeInfos, Map<String, List<GoodsInfo>> goodinfos) {
+    private void doBuyDelete() {
         List<StoreInfo> toBeDeleteGroups = new ArrayList<>();
-        for (int i = 0; i < storeInfos.size(); i++) {
-            StoreInfo group = storeInfos.get(i);
+        for (int i = 0; i < stores.size(); i++) {
+            StoreInfo group = stores.get(i);
             if (group.isChoosed()) {
                 toBeDeleteGroups.add(group);
             }
             List<GoodsInfo> toBeDeleteProducts = new ArrayList<>();
-            List<GoodsInfo> childs = goodinfos.get(group.getId());
+            List<GoodsInfo> childs = goods.get(group.getId());
             for (int j = 0; j < childs.size(); j++) {
                 if (childs.get(j).isChoosed()) {
                     toBeDeleteProducts.add(childs.get(j));
@@ -192,7 +182,11 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
             }
             childs.removeAll(toBeDeleteProducts);
         }
-        storeInfos.removeAll(toBeDeleteGroups);
+        stores.removeAll(toBeDeleteGroups);
+
+        calculateTotalMoney(stores, goods);
+        iShoppingCartView.showTotalPriceText(totalPrice);
+        iShoppingCartView.showData(stores, goods);
     }
 
     /**
@@ -209,7 +203,6 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
                 if (product.isChoosed()) {
 //                    totalCount++;
                     totalPrice += product.getPrice() * product.getCount();
-                    int count = (int) totalPrice;
                 }
             }
         }

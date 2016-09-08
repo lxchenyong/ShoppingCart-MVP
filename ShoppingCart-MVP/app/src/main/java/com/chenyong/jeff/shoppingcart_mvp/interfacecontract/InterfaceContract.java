@@ -25,6 +25,9 @@ public interface InterfaceContract {
          */
         void showData(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
 
+        /**
+         * @param isChecked 是否全选
+         */
         void showAllCheck(boolean isChecked);
 
         /**
@@ -42,7 +45,7 @@ public interface InterfaceContract {
         /**
          * 跳转到下一个页面
          */
-        void forwardToNextView(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
+        void forwardToNextView();
 
         /**
          * 显示错误信息
@@ -111,10 +114,7 @@ public interface InterfaceContract {
 
         /**
          * 创建订单
-         *
-         * @param stores 商家
-         * @param goods  商品
          */
-        void createOrder(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
+        void createOrder();
     }
 }
