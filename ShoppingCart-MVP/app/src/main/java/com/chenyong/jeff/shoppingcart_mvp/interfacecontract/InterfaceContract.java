@@ -71,26 +71,21 @@ public interface InterfaceContract {
         void showTotalPrice(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
 
         /**
-         * 增加商品数量
+         * 修改商品数量
          *
+         * @param groupID 商家ID
          * @param goodsId 商品ID
          * @param count   数量
          */
-        void changeCount(String goodsId, int count);
+        void changeCount(String groupID, String goodsId, int count);
 
         /**
          * 删除当前商品
          *
-         * @param goodsId 商品ID
+         * @param groupPosition 商家索引
+         * @param childPosition 商品索引
          */
-        void deleteGoodsInfo(String goodsId);
-
-        /**
-         * 删除商家
-         *
-         * @param storeId 商家ID
-         */
-        void deleteStoreInfo(String storeId);
+        void deleteGoodsInfo(int groupPosition, int childPosition);
 
         /**
          * 创建订单

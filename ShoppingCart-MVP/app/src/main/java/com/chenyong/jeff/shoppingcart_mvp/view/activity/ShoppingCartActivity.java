@@ -2,7 +2,6 @@ package com.chenyong.jeff.shoppingcart_mvp.view.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -26,7 +25,7 @@ import java.util.Map;
 
 /**
  * 购物车
- * Created by chenyong on 2016/8/25.
+ * Created by chen yong on 2016/8/25.
  */
 public class ShoppingCartActivity extends AppCompatActivity implements InterfaceContract.IShoppingCartView, ShopCartAdapter.ModifyCountInterface,
         ShopCartAdapter.CheckInterface, View.OnClickListener {
@@ -44,9 +43,17 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         setContentView(R.layout.shopping_cart);
         ShoppingCartBiz shoppingCartBiz = new ShoppingCartBiz();
         presenter = new ShoppingCartPresenter(this, shoppingCartBiz);
+
+
+    }
+
+    @Override
+    protected void onResume() {
         groups = presenter.initGroups();
         children = presenter.initChildren();
         initView();
+        super.onResume();
+
     }
 
     /**
@@ -68,7 +75,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
         tvTotalPrice = (TextView) findViewById(R.id.tv_total_price);
         tvGoToPay = (Button) findViewById(R.id.tv_go_to_pay);
-        tvGoToPay.setClickable(false);
+//        tvGoToPay.setClickable(false);
 //        tvGoToPay.setLinksClickable(false);
 
 //      LinearLayout llCart = (LinearLayout) findViewById(R.id.ll_cart);
@@ -80,6 +87,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
     private void changeChilder(int groupPosition, int childPosition, View showCountView, boolean isIncrease) {
         GoodsInfo product = (GoodsInfo) adapter.getChild(groupPosition, childPosition);
+        StoreInfo storeInfo = (StoreInfo) adapter.getGroup(groupPosition);
         int currentCount = product.getCount();
         if (isIncrease) {
             currentCount++;
@@ -90,9 +98,8 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         }
         product.setCount(currentCount);
         ((TextView) showCountView).setText(String.valueOf(currentCount));
-//        adapter.notifyDataSetChanged();
-        presenter.changeCount(product.getId(), currentCount);
-        presenter.showTotalPrice(groups, children);
+        presenter.changeCount(storeInfo.getId(), product.getId(), currentCount);
+//        presenter.showTotalPrice(groups, children);
     }
 
     @Override
@@ -107,17 +114,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
     @Override
     public void childDelete(int groupPosition, int childPosition) {
-        List<GoodsInfo> goodsInfo = children.get(groups.get(groupPosition).getId());
-        presenter.deleteGoodsInfo(goodsInfo.get(childPosition).getId());
-        goodsInfo.remove(childPosition);
-        StoreInfo group = groups.get(groupPosition);
-        List<GoodsInfo> childs = children.get(group.getId());
-        if (childs.size() == 0) {
-            presenter.deleteStoreInfo(groups.get(groupPosition).getId());
-            groups.remove(groupPosition);
-
-        }
-        presenter.showTotalPrice(groups, children);
+        presenter.deleteGoodsInfo(groupPosition, childPosition);
         adapter.notifyDataSetChanged();
     }
 
@@ -214,7 +211,6 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     @Override
     public void showCreateButton(boolean isChecked) {
         tvGoToPay.setClickable(isChecked);
-        Log.d("button-2-", "button··" + tvGoToPay.getLinksClickable());
     }
 
     @Override

@@ -32,12 +32,17 @@ public class ShoppingCartPresenterTest {
 
     private List<StoreInfo> groups = new ArrayList<>();
     private Map<String, List<GoodsInfo>> children = new HashMap<>();
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         shoppingCartPresenter = new ShoppingCartPresenter(iShoppingCartView, shoppingCartBiz);
         fakeData();
+        shoppingCartPresenter.initGroups();
+        shoppingCartPresenter.initChildren();
+
     }
+
 
     private void fakeData() {
         for (int i = 0; i < 3; i++) {
@@ -45,7 +50,7 @@ public class ShoppingCartPresenterTest {
             List<GoodsInfo> products = new ArrayList<>();
             for (int j = 0; j <= i; j++) {
                 int[] img = {R.drawable.goods1, R.drawable.goods2, R.drawable.goods3, R.drawable.goods4, R.drawable.goods5, R.drawable.goods6};
-                if ( j%2 == 0)
+                if (j % 2 == 0)
                     products.add(new GoodsInfo(j + "", groups.get(i)
                             .getName() + "的第" + (j + 1) + "个商品", 10, 1, img[i * j], true));
                 else
@@ -57,27 +62,30 @@ public class ShoppingCartPresenterTest {
     }
 
     @Test
-    public void testShowTotalPrice() {
-        shoppingCartPresenter.showTotalPrice(groups,children);
-//        shoppingCartPresenter.calculateTotalMoney(groups,children);
-//        verify(iShoppingCartView).showTotalPriceText(shoppingCartPresenter.totalPrice);
-        assertTrue(shoppingCartPresenter.totalPrice == 40);
-    }
-
-    @Test
-    public void testCreateOrder() {
-
-    }
-
-    @Test
-    public void testDoBuyDelete() {
-        shoppingCartPresenter.doBuyDelete(groups,children);
-        assertTrue(children.size()==3);
-    }
-
-    @Test
-    public void testCalculateTotalMoney() {
-//        shoppingCartPresenter.calculateTotalMoney(groups, children);
+    public void testShowTotalPrice() throws Exception {
+        shoppingCartPresenter.showTotalPrice(groups, children);
+        verify(iShoppingCartView).showTotalPriceText(40);
 //        assertTrue(shoppingCartPresenter.totalPrice == 40);
     }
+
+    @Test
+    public void testChangeCount() throws Exception {
+        String groupID = "0";
+        String childrenID = "0";
+        int count = 2;
+        shoppingCartPresenter.changeCount(groupID,childrenID,count);
+
+    }
+
+    @Test
+    public void testDeleteGoodsInfo() throws Exception {
+
+    }
+
+    @Test
+    public void testCreateOrder() throws Exception {
+
+    }
+
+
 }

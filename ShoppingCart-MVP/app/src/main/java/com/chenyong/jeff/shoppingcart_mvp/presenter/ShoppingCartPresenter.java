@@ -7,6 +7,7 @@ import com.chenyong.jeff.shoppingcart_mvp.model.bean.StoreInfo;
 import com.chenyong.jeff.shoppingcart_mvp.model.biz.ShoppingCartBiz;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,9 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     private ShoppingCartBiz shoppingCartBiz;
     private InterfaceContract.IShoppingCartView iShoppingCartView;
 
-    public double totalPrice = 0.00;
+    private double totalPrice = 0.00;
+    private List<StoreInfo> stores = new ArrayList<>();// 组元素数据列表
+    private Map<String, List<GoodsInfo>> goods = new HashMap<>();//
 
     public ShoppingCartPresenter(InterfaceContract.IShoppingCartView iShoppingCartView, ShoppingCartBiz shoppingCartBiz) {
         this.iShoppingCartView = iShoppingCartView;
@@ -30,7 +33,8 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
      */
     @Override
     public List<StoreInfo> initGroups() {
-        return shoppingCartBiz.initGroups();
+        stores = shoppingCartBiz.initGroups();
+        return stores;
     }
 
     /**
@@ -38,7 +42,8 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
      */
     @Override
     public Map<String, List<GoodsInfo>> initChildren() {
-        return shoppingCartBiz.initChildren();
+        goods = shoppingCartBiz.initChildren();
+        return goods;
     }
 
     /**
@@ -55,18 +60,35 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     }
 
     @Override
-    public void changeCount(String goodsId, int count) {
+    public void changeCount(String groupID, String goodsId, int count) {
         //TODO 根据ID 修改 db 里的数量
+        for (int i = 0; i < stores.size(); i++) {
+            if (groupID.equals(stores.get(i).getId())) {
+                for (int j = 0; j < i; j++) {
+                    if (goodsId.equals(goods.get(stores.get(i).getId()).get(j).getId())) {
+                        goods.get(stores.get(i).getId()).get(j).setCount(count);
+                    }
+                }
+            }
+        }
+        calculateTotalMoney(stores, goods);
+        iShoppingCartView.showTotalPriceText(totalPrice);
+
     }
 
     @Override
-    public void deleteGoodsInfo(String goodsId) {
+    public void deleteGoodsInfo(int groupPosition, int childPosition) {
         //TODO 根据ID 删除 db 里的商品
-    }
+        List<GoodsInfo> goodsInfo = goods.get(stores.get(groupPosition).getId());
+        StoreInfo group = stores.get(groupPosition);
+        goodsInfo.remove(childPosition);
+        List<GoodsInfo> childs = goods.get(group.getId());
+        if (childs.size() == 0) {
+            stores.remove(groupPosition);
 
-    @Override
-    public void deleteStoreInfo(String storeId) {
-        //TODO 根据ID 删除 db 里的商家
+        }
+        calculateTotalMoney(stores, goods);
+        iShoppingCartView.showTotalPriceText(totalPrice);
     }
 
     /**
@@ -91,7 +113,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     /**
      * 购买成功之后删除
      */
-    public void doBuyDelete(List<StoreInfo> storeInfos, Map<String, List<GoodsInfo>> goodinfos) {
+    private void doBuyDelete(List<StoreInfo> storeInfos, Map<String, List<GoodsInfo>> goodinfos) {
         List<StoreInfo> toBeDeleteGroups = new ArrayList<>();
         for (int i = 0; i < storeInfos.size(); i++) {
             StoreInfo group = storeInfos.get(i);
@@ -113,17 +135,18 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     /**
      * 计算勾选总金额
      */
-    private void calculateTotalMoney(List<StoreInfo> storeInfo, Map<String, List<GoodsInfo>> goodinfo) {
+    private void calculateTotalMoney(List<StoreInfo> storeInfo, Map<String, List<GoodsInfo>> goodsinfo) {
         //        int totalCount = 0;
         totalPrice = 0.00;
         for (int i = 0; i < storeInfo.size(); i++) {
             StoreInfo group = storeInfo.get(i);
-            List<GoodsInfo> childs = goodinfo.get(group.getId());
-            for (int j = 0; j < childs.size(); j++) {
-                GoodsInfo product = childs.get(j);
+            List<GoodsInfo> goods = goodsinfo.get(group.getId());
+            for (int j = 0; j < goods.size(); j++) {
+                GoodsInfo product = goods.get(j);
                 if (product.isChoosed()) {
 //                    totalCount++;
                     totalPrice += product.getPrice() * product.getCount();
+                    int count = (int)totalPrice ;
                 }
             }
         }
