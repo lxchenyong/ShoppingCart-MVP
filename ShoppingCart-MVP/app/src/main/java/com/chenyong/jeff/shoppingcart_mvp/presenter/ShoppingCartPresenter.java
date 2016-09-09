@@ -1,6 +1,7 @@
 package com.chenyong.jeff.shoppingcart_mvp.presenter;
 
 
+import com.chenyong.jeff.shoppingcart_mvp.TasksDataSource.LoadTasksCallback;
 import com.chenyong.jeff.shoppingcart_mvp.interfacecontract.InterfaceContract;
 import com.chenyong.jeff.shoppingcart_mvp.model.bean.GoodsInfo;
 import com.chenyong.jeff.shoppingcart_mvp.model.bean.StoreInfo;
@@ -32,6 +33,17 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
      * 拿到所有商家
      */
     private void initGroups() {
+//        shoppingCartBiz.initGroups3(new LoadTasksCallback<List<StoreInfo>>() {
+//            @Override
+//            public void onTasksLoaded(List<StoreInfo> storeInfos) {
+//                stores.addAll(storeInfos);
+//            }
+//
+//            @Override
+//            public void onDataNotAvailable(String message) {
+//
+//            }
+//        });
         stores.addAll(shoppingCartBiz.initGroups());
     }
 
@@ -39,6 +51,17 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
      * 拿到商家下所有商品
      */
     private void initChildren() {
+//       shoppingCartBiz.initChildren3(new LoadTasksCallback<Map<String, List<GoodsInfo>>>() {
+//           @Override
+//           public void onTasksLoaded(Map<String, List<GoodsInfo>> stringListMap) {
+//               goods.putAll(stringListMap);
+//           }
+//
+//           @Override
+//           public void onDataNotAvailable(String message) {
+//
+//           }
+//       });
         goods.putAll(shoppingCartBiz.initChildren());
     }
 
@@ -64,7 +87,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
 
 
     @Override
-    public void showChangeGroupCheckedTotalPrice(int groupPosition, boolean isChecked) {
+    public void setGroupChecked(int groupPosition, boolean isChecked) {
         StoreInfo group = stores.get(groupPosition);
         List<GoodsInfo> childs = goods.get(group.getId());
         for (int i = 0; i < childs.size(); i++) {
@@ -76,7 +99,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     }
 
     @Override
-    public void showChangeChilderCheckedTotalPrice(int groupPosition, int childPosition, boolean isChecked) {
+    public void setChildrenChecked(int groupPosition, int childPosition, boolean isChecked) {
         boolean allChildSameState = true;// 判断改组下面的所有子元素是否是同一种状态
         StoreInfo group = stores.get(groupPosition);
         List<GoodsInfo> childs = goods.get(group.getId());
@@ -99,7 +122,7 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
     }
 
     @Override
-    public void showAllCheckedTotalPrice(boolean isChecked) {
+    public void setAllChecked(boolean isChecked) {
         for (int i = 0; i < stores.size(); i++) {
             stores.get(i).setChoosed(isChecked);
             StoreInfo group = stores.get(i);
@@ -151,14 +174,11 @@ public class ShoppingCartPresenter implements InterfaceContract.IShoppingCartPre
      */
     @Override
     public void createOrder() {
-        iShoppingCartView.showProgressBar(true);
         //TODO 这里就向服务器发送信息 成功之后从db中删除及跳转到下一个页面
-        iShoppingCartView.showProgressBar(false);
         iShoppingCartView.forwardToNextView();
         doBuyDelete();
 
         //TODO 创建失败
-        iShoppingCartView.showProgressBar(false);
         String errorMsg = "创建订单失败";
         iShoppingCartView.showErrorMessage(errorMsg);
     }

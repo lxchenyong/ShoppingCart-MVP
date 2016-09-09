@@ -116,12 +116,12 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
 
     @Override
     public void checkGroup(int groupPosition, boolean isChecked) {
-        presenter.showChangeGroupCheckedTotalPrice(groupPosition, isChecked);
+        presenter.setGroupChecked(groupPosition, isChecked);
     }
 
     @Override
     public void checkChild(int groupPosition, int childPosition, boolean isChecked) {
-        presenter.showChangeChilderCheckedTotalPrice(groupPosition, childPosition, isChecked);
+        presenter.setChildrenChecked(groupPosition, childPosition, isChecked);
     }
 
 
@@ -152,8 +152,7 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         adapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void showProgressBar(boolean isFlag) {
+    private void showProgressBar(boolean isFlag) {
         if (isFlag) {
             //此处显示进度条代码
         } else {
@@ -176,10 +175,12 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
         //TODO 下单之后跳转到下一个页面
 //        showAllCheck(isAllCheck());
 //        presenter.showTotalPrice(groups, children);
+        showProgressBar(true);
     }
 
     @Override
     public void showErrorMessage(String message) {
+        showProgressBar(true);
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
@@ -192,9 +193,10 @@ public class ShoppingCartActivity extends AppCompatActivity implements Interface
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.all_chekbox:
-                presenter.showAllCheckedTotalPrice(allCheckbox.isChecked());
+                presenter.setAllChecked(allCheckbox.isChecked());
                 break;
             case R.id.tv_go_to_pay:
+                showProgressBar(true);
                 presenter.createOrder();
                 break;
         }

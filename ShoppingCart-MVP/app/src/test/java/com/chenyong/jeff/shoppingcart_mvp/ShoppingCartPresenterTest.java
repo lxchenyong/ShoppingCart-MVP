@@ -1,13 +1,17 @@
 package com.chenyong.jeff.shoppingcart_mvp;
 
+import com.chenyong.jeff.shoppingcart_mvp.TasksDataSource.LoadTasksCallback;
 import com.chenyong.jeff.shoppingcart_mvp.interfacecontract.InterfaceContract;
 import com.chenyong.jeff.shoppingcart_mvp.model.bean.GoodsInfo;
 import com.chenyong.jeff.shoppingcart_mvp.model.bean.StoreInfo;
 import com.chenyong.jeff.shoppingcart_mvp.model.biz.ShoppingCartBiz;
 import com.chenyong.jeff.shoppingcart_mvp.presenter.ShoppingCartPresenter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -16,8 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static android.test.MoreAsserts.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * To work on unit tests, switch the Test Artifact in the Build Variants view.
@@ -29,6 +35,8 @@ public class ShoppingCartPresenterTest {
     private InterfaceContract.IShoppingCartView iShoppingCartView;
     @Mock
     private ShoppingCartBiz shoppingCartBiz;
+    @Captor
+    private ArgumentCaptor<LoadTasksCallback> loadTasksCallbackArgumentCaptor;
 
     private List<StoreInfo> groups = new ArrayList<>();
     private Map<String, List<GoodsInfo>> children = new HashMap<>();
@@ -38,10 +46,53 @@ public class ShoppingCartPresenterTest {
         MockitoAnnotations.initMocks(this);
         shoppingCartPresenter = new ShoppingCartPresenter(iShoppingCartView, shoppingCartBiz);
         fakeData();
-        shoppingCartPresenter.initGroups();
-        shoppingCartPresenter.initChildren();
+        when(shoppingCartBiz.initGroups()).thenReturn(groups);
+        when(shoppingCartBiz.initChildren()).thenReturn(children);
+        shoppingCartPresenter.initData();
+    }
+    @After
+    public void tearDown() throws Exception {
+        //do your tearDown
+    }
+
+    @Test
+    public void testChangeCount() throws Exception {
+        shoppingCartPresenter.changeCount("0","0",2);
+        verify(iShoppingCartView).showTotalPriceText(40);
+    }
+
+    @Test
+    public void testGroupChecked() throws Exception{
+        shoppingCartPresenter.setGroupChecked(1,true);
+        verify(iShoppingCartView).showTotalPriceText(50);
+    }
+
+    @Test
+    public void testChildrenChecked() throws Exception{
+        shoppingCartPresenter.setChildrenChecked(1,0,true);
+        verify(iShoppingCartView).showTotalPriceText(40);
 
     }
+    @Test
+    public void testAllChecked() throws  Exception{
+        shoppingCartPresenter.setAllChecked(true);
+        verify(iShoppingCartView).showTotalPriceText(60);
+    }
+    @Test
+    public void testDeleteGoodsInfo() throws  Exception{
+        shoppingCartPresenter.deleteGoodsInfo(0,0);
+        verify(iShoppingCartView).showTotalPriceText(30);
+        verify(iShoppingCartView).showData(groups,children);
+        assertTrue(children.get(groups.get(0).getId()).get(0).getId().equals(""));
+
+    }
+
+
+
+
+
+
+
 
 
     private void fakeData() {
@@ -60,32 +111,4 @@ public class ShoppingCartPresenterTest {
             children.put(groups.get(i).getId(), products);// 将组元素的一个唯一值，这里取Id，作为子元素List的Key
         }
     }
-
-    @Test
-    public void testShowTotalPrice() throws Exception {
-        shoppingCartPresenter.showTotalPrice(groups, children);
-        verify(iShoppingCartView).showTotalPriceText(40);
-//        assertTrue(shoppingCartPresenter.totalPrice == 40);
-    }
-
-    @Test
-    public void testChangeCount() throws Exception {
-        String groupID = "0";
-        String childrenID = "0";
-        int count = 2;
-        shoppingCartPresenter.changeCount(groupID,childrenID,count);
-
-    }
-
-    @Test
-    public void testDeleteGoodsInfo() throws Exception {
-
-    }
-
-    @Test
-    public void testCreateOrder() throws Exception {
-
-    }
-
-
 }

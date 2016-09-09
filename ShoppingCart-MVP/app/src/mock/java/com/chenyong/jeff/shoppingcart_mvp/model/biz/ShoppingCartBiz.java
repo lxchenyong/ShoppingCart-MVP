@@ -2,6 +2,7 @@ package com.chenyong.jeff.shoppingcart_mvp.model.biz;
 
 
 import com.chenyong.jeff.shoppingcart_mvp.R;
+import com.chenyong.jeff.shoppingcart_mvp.TasksDataSource.LoadTasksCallback;
 import com.chenyong.jeff.shoppingcart_mvp.model.bean.GoodsInfo;
 import com.chenyong.jeff.shoppingcart_mvp.model.bean.StoreInfo;
 
@@ -18,6 +19,11 @@ import java.util.Random;
 public class ShoppingCartBiz {
     private List<StoreInfo> groups = new ArrayList<StoreInfo>();// 组元素数据列表
     private Map<String, List<GoodsInfo>> children = new HashMap<String, List<GoodsInfo>>();//
+
+    public ShoppingCartBiz() {
+        initGroups();
+        initChildren();
+    }
 
     /**
      * 模拟数据<br>
@@ -55,26 +61,37 @@ public class ShoppingCartBiz {
         }
         return children;
     }
-   /* public Map<String, List<GoodsInfo>> initChildren2() {
-        children.clear();
-        for (int i=0;i<groups.size();i++){
-            List<GoodsInfo> products = new ArrayList<GoodsInfo>();
-            for (int j = 0; j <= 2; j++) {
-                int[] img = {R.drawable.goods1, R.drawable.goods2, R.drawable.goods3, R.drawable.goods4, R.drawable.goods5, R.drawable.goods6};
-                products.add(new GoodsInfo(j+"","第" + (j + 1) + "个商品",12.00 + new Random().nextInt(23),
-                        new Random().nextInt(5) + 1, img[j],false));
-            }
-       children.put(groups.get(i).getId(), products);
-   }
-
-        return children;
-    }
-    public List<StoreInfo> initGroups2() {
+    public void initGroups3(LoadTasksCallback<List<StoreInfo>> loadTasksCallback) {
         groups.clear();
         children.clear();
         for (int i = 0; i < 3; i++) {
             groups.add(new StoreInfo(i + "", "天猫店铺" + (i + 1) + "号店"));
+            List<GoodsInfo> products = new ArrayList<GoodsInfo>();
+            for (int j = 0; j <= i; j++) {
+                int[] img = {R.drawable.goods1, R.drawable.goods2, R.drawable.goods3, R.drawable.goods4, R.drawable.goods5, R.drawable.goods6};
+                products.add(new GoodsInfo(j + "", groups.get(i)
+                        .getName() + "的第" + (j + 1) + "个商品", 12.00 + new Random().nextInt(23), new Random().nextInt(5) + 1, img[i * j], false));
+            }
+            children.put(groups.get(i).getId(), products);// 将组元素的一个唯一值，这里取Id，作为子元素List的Key
         }
-        return groups;
-    }*/
+        loadTasksCallback.onTasksLoaded(groups);
+
+    }
+
+    public void initChildren3(LoadTasksCallback<Map<String, List<GoodsInfo>>> loadTasksCallback) {
+
+        groups.clear();
+        children.clear();
+        for (int i = 0; i < 3; i++) {
+            groups.add(new StoreInfo(i + "", "天猫店铺" + (i + 1) + "号店"));
+            List<GoodsInfo> products = new ArrayList<GoodsInfo>();
+            for (int j = 0; j <= i; j++) {
+                int[] img = {R.drawable.goods1, R.drawable.goods2, R.drawable.goods3, R.drawable.goods4, R.drawable.goods5, R.drawable.goods6};
+                products.add(new GoodsInfo(j + "", groups.get(i)
+                        .getName() + "的第" + (j + 1) + "个商品", 12.00 + new Random().nextInt(23), new Random().nextInt(5) + 1, img[i * j], false));
+            }
+            children.put(groups.get(i).getId(), products);// 将组元素的一个唯一值，这里取Id，作为子元素List的Key
+        }
+        loadTasksCallback.onTasksLoaded(children);
+    }
 }

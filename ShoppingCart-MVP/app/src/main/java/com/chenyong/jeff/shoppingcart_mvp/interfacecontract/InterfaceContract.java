@@ -26,14 +26,9 @@ public interface InterfaceContract {
         void showData(List<StoreInfo> stores, Map<String, List<GoodsInfo>> goods);
 
         /**
-         * @param isChecked 是否全选
+         * @param isChecked 全选是否勾上
          */
         void showAllCheck(boolean isChecked);
-
-        /**
-         * @param isFlag 是否显示进度条
-         */
-        void showProgressBar(boolean isFlag);
 
         /**
          * 显示总金额
@@ -73,26 +68,26 @@ public interface InterfaceContract {
         void initData();
 
         /**
-         * 点击商家显示价格
+         * 点击商家勾选操作
          *
          * @param groupPosition 商家位置
          * @param isChecked     商家点击
          */
-        void showChangeGroupCheckedTotalPrice(int groupPosition, boolean isChecked);
+        void setGroupChecked(int groupPosition, boolean isChecked);
 
         /**
-         * 点击商品后的价格
+         * 点击商品勾选操作
          *
          * @param groupPosition 商家位置
          * @param childPosition 商品位置
          * @param isChecked     商品点击
          */
-        void showChangeChilderCheckedTotalPrice(int groupPosition, int childPosition, boolean isChecked);
+        void setChildrenChecked(int groupPosition, int childPosition, boolean isChecked);
 
         /**
          * @param isChecked 全选点击操作
          */
-        void showAllCheckedTotalPrice(boolean isChecked);
+        void setAllChecked(boolean isChecked);
 
 
         /**
